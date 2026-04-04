@@ -38,7 +38,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
             'gender', 'role', 'occupation', 'city', 
-            'initial_balance', 'is_staff', 'is_active', 'date_joined'
+            'initial_balance','current_balance', 'is_staff', 'is_active', 'date_joined'
         ]
         read_only_fields = ['id', 'date_joined']
 
