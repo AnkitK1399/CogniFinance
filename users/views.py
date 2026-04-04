@@ -1,10 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, AdminUserSerializer, AnalystUserSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
+from .permissions import IsAdminRole, IsAnalystRole, IsOwnerAdminOrAnalystReadOnly
+from django.shortcuts import get_object_or_404
+from .models import User
 
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -88,7 +91,51 @@ class ProtectedView(APIView):
             'user_id': request.user.id,
             'Name' : f'welcome {request.user.first_name} {request.user.last_name}',
             'Email' : request.user.email,
-            'Gender' : request.user.gender,
-            
-            
+            'Gender' : request.user.gender,         
         })
+    
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated, (IsAdminRole | IsAnalystRole)]
+
+    def get(self, request):
+        users = User.objects.all()
+        if request.user.role == 'ADMIN':
+            serializer = AdminUserSerializer(users, many=True)
+        else:
+            serializer = AnalystUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class UserProfileDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsOwnerAdminOrAnalystReadOnly]
+
+    def get_user(self, pk):
+        user_obj = get_object_or_404(User, pk=pk)
+        self.check_object_permissions(self.request, user_obj)
+        return user_obj
+
+    def get(self, request, pk):
+        target_user = self.get_user(pk)
+        if request.user.role == 'ANALYST':
+            serializer = AnalystUserSerializer(target_user)
+        else:
+            serializer = AdminUserSerializer(target_user)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        target_user = self.get_user(pk)
+        if request.user.role != 'ADMIN':
+            request.data.pop('is_staff', None)
+            request.data.pop('is_active', None)
+            request.data.pop('role', None)
+            request.data.pop('id', None)
+        serializer = AdminUserSerializer(target_user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        target_user = self.get_user(pk)
+        target_user.delete()
+        return Response({"message": "Profile deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
