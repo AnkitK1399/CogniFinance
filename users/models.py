@@ -20,6 +20,8 @@ class User(AbstractUser):
     occupation = models.CharField(max_length=100, blank=True, null=True)
     dob = models.DateField(null=True, blank=True)
     current_balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    initial_balance = models.DecimalField( max_digits=15, decimal_places=2,  default=0.00)
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
