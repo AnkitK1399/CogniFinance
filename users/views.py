@@ -8,6 +8,13 @@ from rest_framework.views import APIView
 from .permissions import IsAdminRole, IsAnalystRole, IsOwnerAdminOrAnalystReadOnly
 from django.shortcuts import get_object_or_404
 from .models import User
+from rest_framework.pagination import PageNumberPagination
+
+class StandardPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -99,11 +106,14 @@ class UserListView(APIView):
 
     def get(self, request):
         users = User.objects.all()
+        record_pagination = StandardPagination()
+        paginated_data = record_pagination.paginate_queryset(users,request=request) 
         if request.user.role == 'ADMIN':
-            serializer = AdminUserSerializer(users, many=True)
+            serializer = AdminUserSerializer(paginated_data, many=True)
         else:
-            serializer = AnalystUserSerializer(users, many=True)
-        return Response(serializer.data)
+            serializer = AnalystUserSerializer(paginated_data, many=True)
+        response = record_pagination.get_paginated_response(serializer.data).data
+        return Response(response, status=200)
 
 
 class UserProfileDetailView(APIView):
@@ -132,7 +142,7 @@ class UserProfileDetailView(APIView):
         serializer = AdminUserSerializer(target_user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({"message":"update successful"},serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
