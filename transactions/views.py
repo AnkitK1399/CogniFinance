@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Transaction
 from .serializers import TransactionSerializer
 from django.shortcuts import get_object_or_404
+from users.permissions import IsAnalystRole
 
 class TransactionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -39,3 +40,25 @@ class TransactionView(APIView):
             {"message": "Transaction deleted successfully"}, 
             status=status.HTTP_204_NO_CONTENT
         )
+
+class AnalystTransactionView(APIView):
+    permission_classes = [IsAuthenticated, IsAnalystRole]
+
+    def get(self, request):
+        queryset = Transaction.objects.all()
+        city = request.query_params.get('city')
+        t_type = request.query_params.get('type')
+        min_amount = request.query_params.get('min_amount')
+
+        if city:
+            queryset = queryset.filter(user__city__iexact=city)
+        if t_type:
+            queryset = queryset.filter(transaction_type=t_type)
+        if min_amount:
+            queryset = queryset.filter(amount__gte=min_amount)
+
+        serializer = TransactionSerializer(queryset, many=True)
+        return Response({
+            "count": queryset.count(),
+            "results": serializer.data
+        })
