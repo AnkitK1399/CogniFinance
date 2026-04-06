@@ -21,6 +21,7 @@ class Transaction(models.Model):
     description = models.TextField(blank=True, null=True)
     date = models.DateField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    balance_snapshot = models.DecimalField(max_digits=12, decimal_places=2, editable=False, null=True)
 
     def delete(self, *args, **kwargs):
         user = self.user
@@ -58,6 +59,7 @@ class Transaction(models.Model):
 
         with transaction.atomic():
             user.save()
+            self.balance_snapshot = user.current_balance
             super().save(*args, **kwargs)
 
         

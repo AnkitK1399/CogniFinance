@@ -78,8 +78,7 @@ class AnalystTransactionView(APIView):
             if date_before:
                 queryset = queryset.filter(date__lte=date_before)
             if user_id:
-                queryset = queryset.filter(user=user_id)
-            
+                queryset = queryset.filter(user=user_id)   
         except Exception as e:
             return Response({'error':'query parameter value is wrong'}, status=400)
 
