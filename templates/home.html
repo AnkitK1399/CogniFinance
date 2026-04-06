@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniFinance | AI Financial Intelligence API</title>
+    <style>
+        :root {
+            --primary: #10b981; /* Emerald */
+            --primary-dark: #059669;
+            --bg: #f3f4f6; /* Slate 100 */
+            --text-main: #1f2937; /* Slate 800 */
+            --text-muted: #6b7280; /* Slate 500 */
+            --card-bg: #ffffff;
+            --accent-blue: #3b82f6;
+            
+            /* Method Colors */
+            --post-color: #10b981;
+            --get-color: #3b82f6;
+            --put-color: #f59e0b; /* Amber */
+            --delete-color: #ef4444; /* Red */
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            line-height: 1.6; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            background: var(--card-bg); 
+            padding: 50px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+        }
+
+        /* Header & Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        h1 { 
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main); 
+            margin: 0 0 10px 0;
+            letter-spacing: -0.05em;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+
+        .feature-list { 
+            display: flex; 
+            gap: 8px; 
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge { 
+            background: #e0f2fe; /* Sky 100 */
+            color: #0369a1; /* Sky 700 */
+            padding: 6px 16px; 
+            border-radius: 99px; 
+            font-size: 0.8rem; 
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Developer Profile Section */
+        .profile-card { 
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            margin: 30px 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dev-info h4 { margin: 0 0 5px 0; color: #9ca3af; font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; }
+        .dev-info p { margin: 0; font-size: 1.1rem; font-weight: 600; }
+        .dev-info small { color: #d1d5db; }
+        
+        .profile-card a.github-btn { 
+            background: var(--primary); 
+            color: white; 
+            text-decoration: none; 
+            font-weight: 700; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            transition: background 0.2s ease, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-card a.github-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .profile-card a.github-btn:active { transform: translateY(1px); }
+
+        /* Typography */
+        h2 { 
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main); 
+            margin-top: 50px; 
+            margin-bottom: 20px;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 span.icon { font-size: 1.3rem; color: var(--primary); }
+
+        /* Workflow Sections */
+        .role-section { margin-bottom: 40px; }
+        
+        .info-group { margin-bottom: 25px; }
+
+        .info-text { 
+            font-weight: 600; 
+            color: var(--text-main); 
+            font-size: 1rem; 
+            margin-bottom: 8px; 
+            padding-left: 10px;
+        }
+
+        /* Endpoint Styling */
+        .endpoint-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 16px 20px; 
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .endpoint-row:hover { 
+            border-color: #d1d5db; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background: #fff;
+        }
+        
+        .url-block { display: flex; align-items: center; gap: 10px; }
+        .url-block .base { color: var(--text-muted); font-family: monospace; }
+        .url { 
+            color: var(--text-main); 
+            font-weight: 700; 
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.95em; 
+        } 
+        
+        /* Method Tags */
+        .method-group { display: flex; gap: 6px; }
+        .method-tag { 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 0.75rem; 
+            color: white; 
+            font-weight: 800; 
+            min-width: 65px; 
+            text-align: center; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .post { background: var(--post-color); } 
+        .get { background: var(--get-color); } 
+        .put { background: var(--put-color); } 
+        .delete { background: var(--delete-color); }
+
+        /* Enhancement Box */
+        .enhancements { 
+            margin-top: 60px; 
+            padding: 30px; 
+            background: #f0fdf4; /* Emerald 50 */
+            border-radius: 12px; 
+            border: 1px solid #a7f3d0; /* Emerald 200 */
+        }
+
+        .enhancements h4 { margin: 0 0 15px 0; color: var(--primary-dark); font-size: 1.1rem; font-weight: 700; }
+        .enhancements ul { margin: 0; padding-left: 20px; color: #065f46; }
+        .enhancements li { margin-bottom: 8px; }
+        .enhancements li strong { color: #047857; }
+
+        footer { text-align: center; color: var(--text-muted); margin-top: 50px; font-size: 0.85em; border-top: 1px solid #e5e7eb; padding-top: 20px;}
+        hr { border: 0; border-top: 1px solid #e5e7eb; margin: 40px 0; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="hero">
+        <h1>CogniFinance API Platform</h1>
+        <p>A sophisticated, production-ready financial intelligence backend integrated with Google Gemini AI for personalized coaching and advanced transaction analytics.</p>
+
+        <div class="feature-list">
+            <span class="badge">Google Gemini AI</span>
+            <span class="badge">Intelligent Cache</span>
+            <span class="badge">DRF Pagination</span>
+            <span class="badge">Email Automation</span>
+            <span class="badge">Role-Based Access</span>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <div class="dev-info">
+            <h4>DEVELOPER</h4>
+            <p>Ankit Kumar</p>
+            <small>ankit233kumar@gmail.com | Bangalore, India</small>
+        </div>
+        <a href="https://github.com/AnkitK1399" target="_blank" class="github-btn">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+            View GitHub
+        </a>
+    </div>
+
+    <hr>
+
+    <h2><span class="icon"></span> User Workflow</h2>
+    <div class="role-section">
+        <div class="info-group">
+            <div class="info-text">1. Registration & Authentication</div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/users</span><span class="url">/register/</span></div>
+                <div class="method-group"><span class="method-tag post">POST</span></div>
+            </div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/users</span><span class="url">/login/</span></div>
+                <div class="method-group"><span class="method-tag post">POST</span></div>
+            </div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/users</span><span class="url">/refresh/</span></div>
+                <div class="method-group"><span class="method-tag post">POST</span></div>
+            </div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-text">2. Profile Management</div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/users</span><span class="url">/userdetail/&lt;int:pk&gt;/</span></div>
+                <div class="method-group">
+                    <span class="method-tag get">GET</span>
+                    <span class="method-tag put">PUT</span>
+                    <span class="method-tag delete">DELETE</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-text">3. Transaction Tracking</div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/transactions</span><span class="url">/add_view/</span></div>
+                <div class="method-group">
+                    <span class="method-tag get">GET</span>
+                    <span class="method-tag post">POST</span>
+                </div>
+            </div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/transactions</span><span class="url">/update_delete/&lt;int:pk&gt;/</span></div>
+                <div class="method-group">
+                    <span class="method-tag put">PUT</span>
+                    <span class="method-tag delete">DELETE</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-text">4. AI Insights & Sessions</div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/ai</span><span class="url">/getsummary/</span></div>
+                <div class="method-group"><span class="method-tag get">GET</span></div>
+            </div>
+            <div class="endpoint-row">
+                <div class="url-block"><span class="base">/users</span><span class="url">/logout/</span></div>
+                <div class="method-group"><span class="method-tag post">POST</span></div>
+            </div>
+        </div>
+    </div>
+
+    <h2><span class="icon"></span> Analyst Dashboard</h2>
+    <div class="role-section">
+        <div class="endpoint-row">
+            <span>Registered Users (List / Detail)</span>
+            <div class="method-group">
+                <span class="url">/users/userlist/</span>
+                <span class="url">/users/userdetail/&lt;int:pk&gt;/</span>
+                <span class="method-tag get">GET</span>
+            </div>
+        </div>
+        <div class="endpoint-row">
+            <span>Filtered Transaction Intelligence</span>
+            <div class="method-group">
+                <span class="url">/transactions/analystView/</span>
+                <span class="method-tag get">GET</span>
+            </div>
+        </div>
+        <div class="endpoint-row">
+            <span>Generate AI Report for specific User</span>
+            <div class="method-group">
+                <span class="url">/ai/&lt;int:pk&gt;/</span>
+                <span class="method-tag post">POST</span>
+            </div>
+        </div>
+        <div class="endpoint-row">
+            <span>Manage AI Summary Records (Retrieve / Remove)</span>
+            <div class="method-group">
+                <span class="url">/ai/aisummary/&lt;int:pk&gt;/</span>
+                <span class="method-tag get">GET</span>
+                <span class="method-tag delete">DELETE</span>
+            </div>
+        </div>
+    </div>
+
+    <h2><span class="icon"></span> Admin Control Panel</h2>
+    <div class="role-section">
+        <div class="endpoint-row">
+            <span>System-Wide User Administration (Manage / Delete Profiles)</span>
+            <div class="method-group">
+                <span class="url">/users/userdetail/&lt;int:pk&gt;/</span>
+                <span class="method-tag get">GET</span>
+                <span class="method-tag delete">DELETE</span>
+            </div>
+        </div>
+        <div class="endpoint-row">
+            <span>Global Data Monitoring (Users / Transactions)</span>
+            <div class="method-group">
+                <span class="url">/users/userlist/</span>
+                <span class="url">/transactions/analystView/</span>
+                <span class="method-tag get">GET</span>
+            </div>
+        </div>
+        <div class="endpoint-row">
+            <span>Full AI Summary Lifecycle Management</span>
+            <div class="method-group">
+                <span class="url">/ai/&lt;int:pk&gt;/</span>
+                <span class="method-tag post">POST</span>
+                <span class="url">/ai/aisummary/&lt;int:pk&gt;/</span>
+                <span class="method-tag delete">DELETE</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="enhancements">
+        <h4>📌 Performance & Core Architecture</h4>
+        <ul>
+            <li><strong>AI Core:</strong> Intelligent financial analysis powered by Google Gemini Flash.</li>
+            <li><strong>Data Handling:</strong> Optimized list rendering using DRF Pagination (50 items/page).</li>
+            <li><strong>Latency Control:</strong> AI summaries are served via an advanced cache layer.</li>
+            <li><strong>Notifications:</strong> Automated "Report Ready" emails sent via Django Mail integration.</li>
+        </ul>
+    </div>
+
+    <footer>&copy; 2026 CogniFinance Intelligent Systems. Documentation generated by Ankit Kumar.</footer>
+</div>
+
+</body>
+</html>
