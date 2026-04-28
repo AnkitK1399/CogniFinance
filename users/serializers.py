@@ -9,7 +9,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'password', 'email', 'first_name', 
             'last_name', 'gender', 'role', 'occupation', 
-            'dob', 'current_balance']
+            'dob', 'initial_balance','city']
     
     def validate(self, data):
         if not data.get('first_name'):
@@ -27,7 +27,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
     def create(self, validated_data):
         password = validated_data.pop("password")
-        user = User.objects.create(**validated_data)
+        intital_balance = validated_data.get('initial_balance',0)
+        user = User.objects.create(**validated_data, current_balance=intital_balance)
         user.set_password(password)  
         user.save()
         return user

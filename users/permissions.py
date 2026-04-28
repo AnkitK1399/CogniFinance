@@ -8,12 +8,6 @@ class IsAnalystRole(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.role == 'ANALYST'
 
-class IsOwnerOrAdmin(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.user.role == 'ADMIN':
-            return True
-        return obj == request.user
-
 
 class IsOwnerAdminOrAnalystReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):

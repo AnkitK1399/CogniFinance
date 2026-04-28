@@ -1,4 +1,5 @@
 import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -13,8 +14,9 @@ from django.core.mail import EmailMessage
 from .serializers import AISummarySerializer
 from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
+from .ai_sql_response import run_this
 
-# Configure Gemini with your API Key
+
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class AIAdvisorView(APIView):
@@ -122,3 +124,12 @@ class AISummaryDetailView(APIView):
         return Response({
             "message": f"Summary ID {pk} deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
+    
+
+class TexttoSQL(APIView):
+    permission_classes = [IsAuthenticated, (IsAnalystRole | IsAdminRole)]
+    def post(self,request):
+        question = request.data.get('question')
+        llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash',temperature=0,google_api_key=settings.GEMINI_API_KEY)
+        text = run_this(llm, question)
+        return Response({'text':text})
