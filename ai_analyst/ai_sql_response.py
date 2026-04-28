@@ -60,7 +60,7 @@ def run_this(llm,question):
         db, 
         prompt=few_shot_prompt, 
         verbose=True, 
-        return_intermediate_steps=False # Set to False so 'result' is the final text
+        return_intermediate_steps=False 
     )
 
     try:
